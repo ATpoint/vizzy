@@ -1,0 +1,17 @@
+Package: vizzy
+Type: Package
+Title: vizzy - functions for data visualization
+Version: 0.9.9
+Authors: Alexander Toenges <a.toenges@uni-muenster.de>
+Maintainer: Alexander Toenges <a.toenges@uni-muenster.de>
+Description: Functions for common data visualization tasks related to bioinformatics
+Depends: 
+  R (>= 4.0),
+  dplyr,
+  genomation,
+  GenomicRanges,
+  ggplot2,
+  reshape2,
+  rtracklayer
+Encoding: UTF-8
+RoxygenNote: 7.1.1
