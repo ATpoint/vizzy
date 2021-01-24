@@ -1,2 +1,2 @@
 ## vizzy
-Functions for data visualization. Documentation will follow.
+Functions for data visualization. Under development. Documentation will follow.
