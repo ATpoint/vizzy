@@ -1,2 +1,2 @@
-# vizzy
-Functions for data visualization
+## vizzy
+Functions for data visualization. Documentation will follow.
