@@ -127,7 +127,8 @@ This does not make sense together with \code{loess.span} so with loess smoothing
 # an example plot
 ranges=readRDS(paste0(system.file("extdata",package="vizzy"), "/example_ranges.rds"))
 ranges2=GRangesList(group1=ranges[1:50],group2=ranges[51:100])
-bigwigs=list.files(system.file("extdata", package="vizzy"), pattern = ".bigwig")
+bigwigs=list.files(system.file("extdata", package="vizzy"), pattern = ".bigwig",
+                   full.names = TRUE)
          
 # multiple bigwigs over one set of regions with CIs     
 plot_profiles(bigwigs=bigwigs, ranges=ranges, CI.level=.95, CI.reps=50)
