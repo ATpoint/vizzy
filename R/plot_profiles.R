@@ -75,10 +75,9 @@
 #'  
 #' @examples 
 #' # an example plot
-#' ranges=system.file("extdata", "example.bigwig", package="vizzy")
+#' ranges=readRDS(paste0(system.file("extdata",package="vizzy"), "/example_ranges.rds"))
 #' ranges2=GRangesList(group1=ranges[1:50],group2=ranges[51:100])
-#' bigwigs=c(system.file("extdata", "example_1.bigwig", package="vizzy"),
-#'           system.file("extdata", "example_2.bigwig", package="vizzy"))
+#' bigwigs=list.files(system.file("extdata", package="vizzy"), pattern = ".bigwig")
 #'          
 #' # multiple bigwigs over one set of regions with CIs     
 #' plot_profiles(bigwigs=bigwigs, ranges=ranges, CI.level=.95, CI.reps=50)
