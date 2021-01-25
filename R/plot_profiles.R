@@ -107,11 +107,10 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
                           theme_set="theme_bw", theme_basesize=15,
                           x.ticks=NULL, x.ticks.lab=NULL,
                           x.ticks.angle=0, x.ticks.kb=TRUE,
-                          x.gridmajor=TRUE,
-                          center.name="center", ylab="normalized counts",
-                          title=waiver(), subtitle=waiver(),
-                          colors=NULL, loess.span = NULL,
-                          legend.ncol=NULL, lwd=.75, 
+                          x.gridmajor=TRUE, center.name="center", 
+                          ylab="normalized counts", title=waiver(), 
+                          subtitle=waiver(), colors=NULL, loess.span = NULL,
+                          legend.ncol=NULL, lwd=.75, return.melted=FALSE,
                           CI.level=NULL, CI.reps=500,
                           CI.workers=NULL, CI.alpha=.2)
 
@@ -131,6 +130,7 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
   invisible(match.arg(class(CI.reps), c("numeric", "NULL")))
   invisible(match.arg(class(CI.workers), c("numeric", "NULL")))
   invisible(match.arg(class(CI.alpha), c("numeric", "NULL")))
+  invisible(match.arg(class(return.melted), c("logical")))
   
   if(!is.null(CI.level)) if(!requireNamespace("boot",quietly=TRUE))
     stop("For CIs please install the boot package from CRAN", call. = FALSE)
@@ -226,6 +226,8 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
   
   df.melt <- reshape2::melt(df.colmeans, value.name = "colmeans",
                             id.vars = "Seq", variable.name = "samples")
+  
+  if(return.melted) return(df.melt)
   
   if(!is.null(theme_set)) theme_set(get(theme_set)(base_size=theme_basesize))
   

@@ -23,6 +23,7 @@ plot_profiles(
   loess.span = NULL,
   legend.ncol = NULL,
   lwd = 0.75,
+  return.melted = FALSE,
   CI.level = NULL,
   CI.reps = 500,
   CI.workers = NULL,
