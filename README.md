@@ -1,8 +1,30 @@
-## vizzy
+# vizzy
 
 vizzy is a simple little R package that provides functions for common visualization tasks
 related to bioinformatics, under development. Documentation will follow.
 All plots are ggplot-based.
+
+## Installation
+
+```r
+
+#/ Bioc dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+  install.packages("BiocManager")
+  BiocManager::install()
+}
+biocs <- c("genomation", "rtracklayer")
+BiocManager::install(biocs)
+
+#/ then install the package from Github:
+install.packages("remotes")
+remotes::install_github("ATpoint/vizzy")
+
+```
+
+## Functions
+
+A brief overview over the functions. More functions will be added soon.  
 
 ### ggMAplot
 This is a function for MAplots and Volcanos, optionally with highlighting
