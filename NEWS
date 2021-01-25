@@ -1,2 +1,4 @@
 v0.9.9
 - putting together the package. Once the main functions are uploaded will make a v1.0.0 release.
+- added ggMAplot and plot_profiles functions 
+- added extdata 
