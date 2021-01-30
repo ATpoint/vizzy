@@ -26,6 +26,9 @@ remotes::install_github("ATpoint/vizzy")
 
 A brief overview over the functions. More functions will be added soon.  
 
+In general there is no hardcoded ggplot theme so users should set `theme_set()` before
+calling plots to set the desired theme.
+
 ### ggMAplot
 This is a function for MAplots and Volcanos, optionally with highlighting of significant genes based on a vector of p-values.
 Minimal input is a vector with average expression values (xval) and fold changes (yval). For the color highlighting a vector with pvalues (pval) is necessary. Points with pval below a user-defined threshold (default .05) are then highlighted and the number of genes being up- or downregulated is printed in the legend. 
