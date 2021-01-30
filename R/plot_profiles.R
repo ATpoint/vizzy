@@ -292,8 +292,8 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
   if(is.null(legend.ncol)){
     legend.ncol=3
     if(length(names)==4) legend.ncol<-2
-    legend.row=length(names)/2
-  } else legend.row=NULL
+    if(legend.ncol==3) legend.nrow=1 else legend.nrow=length(names)/2
+  } else legend.nrow=NULL
   
   #/ add to plot, add legend:
   p <- p +
@@ -305,7 +305,7 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
           legend.title = element_blank(),
           legend.key.width = unit(1.5,"cm"),
           legend.spacing.y = unit(0.5, 'cm')) +
-    guides(col = guide_legend(ncol=legend.ncol,nrow=legend.row,byrow=TRUE)) +
+    guides(col = guide_legend(ncol=legend.ncol,nrow=legend.nrow,byrow=TRUE)) +
     ggtitle(label = title, subtitle = subtitle)
   
   if(!x.gridmajor) 
