@@ -8,8 +8,6 @@ plot_profiles(
   bigwigs,
   ranges,
   names = NULL,
-  theme_set = "theme_bw",
-  theme_basesize = 15,
   x.ticks = NULL,
   x.ticks.lab = NULL,
   x.ticks.angle = 0,
@@ -36,11 +34,6 @@ plot_profiles(
 \item{ranges}{genomic intervals to use as GRanges or GRangesList, see details}
 
 \item{names}{vector of same length as profiles to plot used as names for the legend, see details.}
-
-\item{theme_set}{the ggplot theme, default is theme_bw
-if one wants to use a global \code{theme_set()} then set this to NULL to turn default off.}
-
-\item{theme_basesize}{the basesize if theme_set contains a valid theme}
 
 \item{x.ticks}{a numeric vector that indicates the x-axis ticks to use.
 Allowed values are 1 to \code{width(ranges)}, see details.}
@@ -130,7 +123,9 @@ ranges=readRDS(paste0(system.file("extdata",package="vizzy"), "/example_ranges.r
 ranges2=GRangesList(group1=ranges[1:50],group2=ranges[51:100])
 bigwigs=list.files(system.file("extdata", package="vizzy"), pattern = ".bigwig",
                    full.names = TRUE)
-         
+                   
+# set a common theme:          
+theme_set(theme_bw(base_size=15))
 # multiple bigwigs over one set of regions with CIs     
 plot_profiles(bigwigs=bigwigs, ranges=ranges, CI.level=.95, CI.reps=50)
 
