@@ -137,7 +137,8 @@ value to manually set axis limits. The automatic axis limit setting can be turne
 }
 \examples{
 dds <- DESeq2::DESeq(DESeq2::makeExampleDESeqDataSet(5000,10))
-res <- DESeq2::results(dds) \%>\% data.frame \%>\% na.omit \%>\% mutate(baseMean=log2(baseMean+1))
+res <- DESeq2::results(dds) \%>\% data.frame \%>\% na.omit
+res$baseMean<-log2(res$baseMean+1)
 theme_set(theme_classic(base_size = 12.5))
 
 # a standard MA-plot (pvalue instead of padj simply because then we get more genes in color)
