@@ -1,13 +1,13 @@
 Package: vizzy
 Type: Package
 Title: vizzy - functions for data visualization
-Version: 1.0.0
+Version: 1.0.1
 Authors: Alexander Toenges <a.toenges@uni-muenster.de>
 Maintainer: Alexander Toenges <a.toenges@uni-muenster.de>
 Description: Functions for common data visualization tasks related to bioinformatics
 Depends: 
   R (>= 4.0),
-  dplyr,
+  magrittr,
   genomation,
   GenomicRanges,
   ggplot2,

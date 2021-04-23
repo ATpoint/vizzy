@@ -1,3 +1,6 @@
+v1.0.1
+-replaced dplyr dependency by magrittr as we only need the pipe function actually
+
 v1.0.0
 -removed the theme_set options from plot_profiles so can be fully set by the user globally
 
