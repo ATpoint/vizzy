@@ -1,3 +1,6 @@
+v1.1.0
+-ggMAplot code simplification, now everything in dplyr/pipe style
+
 v1.0.1
 -replaced dplyr dependency by magrittr as we only need the pipe function actually
 
