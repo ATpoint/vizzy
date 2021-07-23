@@ -3,17 +3,17 @@
 #' A ggplot wrapper for MA-plots and Volcanos
 #' 
 #' @param xval a vector with values for the x-axis, usually average expression in MAs and 
-#' fold change in Volcanos
-#' @param yval a vector with values for the y-axis, usually fold change in MAs and -log10(pvalue) 
+#' log fold-change in Volcanos
+#' @param yval a vector with values for the y-axis, usually log fold-change in MAs and -log10(padj) 
 #' in Volcanos
-#' @param pval a vector with pvalue-like values. Points below the \code{pval.thresh} will be 
-#' highlighted
-#' @param xval.thresh threshold for x-axis values, see details
-#' @param yval.thresh threshold for y-axis values, see details
+#' @param pval a vector with pvalues-like values. Points below the \code{pval.thresh} will be 
+#' highlighted with color
+#' @param xval.thresh absolute threshold value for x-axis values to be color-highlighted, see details
+#' @param yval.thresh absolute threshold value for y-axis values to be color-highlighted, see details
 #' @param pval.thresh threshold for pvalues, see details
-#' @param basic.col the color for the data points
-#' @param col.up use this color for points classified as Up, see details
-#' @param col.down use this color for points classified as Down, see details
+#' @param col.base the base color for the data points, will also be used to color non-significant points
+#' @param col.up use this color for points classified as "Up", see details
+#' @param col.down use this color for points classified as "Down", see details
 #' @param Up legend label for points being "Up"
 #' @param Down legend label for points being "Down"
 #' @param NonSig legend label for points being "NonSig"
@@ -35,31 +35,29 @@
 #' see details
 #' @param quantiles.y use these quantiles of the yaxis data range to determine automatic axis limits, 
 #' see details
-#' @param loess.span if not NULL then use this value (e.g. 0.2) as span to fit a loess regression for
-#' yval~xval and add to the plot
-#' @param loess.color color of loess.span regression line
 #' @param preset the type of plot, "maplot" by default, or "volcano" to make a volcano plot, 
 #' see examples
 #' @param no.legend logical, whether to remove the legend
+#' @param legend.position legend positon, one of left/right/top/bottom 
 #' 
 #' @author Alexander Toenges
 #' 
 #' @details 
 #' => towards xval.thresh/yval.threshold/pval.threshold
-#' We assume a typical differential expression results table, so with a fold change, 
-#' an average expression value and some kind of p-value.
-#' We can trigger color-highlighting of significant genes iF a pvalue is provided to the function. 
-#' For MAplots points below this pval.thresh will then be classified as "Up" if yval > yval.thresh 
+#' We assume a typical differential expression results table, so with log fold-changes, 
+#' average expression values (baseMean) and some kind of p-values.
+#' We can trigger color-highlighting of significant genes if a p-value is provided to the function. 
+#' For MA-plots points below this pval.thresh will then be classified as "Up" if yval > yval.thresh 
 #' which is usually the fold change in MA-plots, or "Down" if < yval.thresh, or "NonSig" 
-#' if > pval.thresh. xval.thresh is turned off by default for MAplots but if a threshold is provided
+#' if > pval.thresh. xval.thresh is turned off by default for MA-plots but if a threshold is provided
 #' then only points with xval > xval.thresh will be considered for the classification.
 #' In \code{preset="volcano"} the yval.thresh is ignored as the yaxis is simply -log10(pval),
 #' therefore one should use \code{pval.thresh} for filtering.
 #' 
 #' => towards quantiles.x/y
-#' By default in MAplot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
-#' limits due to outliers. The 0.001th and 0.999th quantile of the yvalues is used to set the limits.
-#' Points beyond these limits will be trimmed back to these limits and displayed as trianged rather
+#' By default in MA-plot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
+#' limits due to outliers. The 0.001th and 0.999th quantile of the \code{yvals} is used to set the limits.
+#' Points beyond these limits will be trimmed back to these exact limits and displayed as trianges rather
 #' than dots. The user can set custom quantiles or simply use an explicit \code{xlim} or \code{ylim}
 #' value to manually set axis limits. The automatic axis limit setting can be turned off by setting
 #' \code{quantiles.x} or \code{quantiles.y} to NULL or \code{c(0,1)}.
@@ -78,18 +76,24 @@
 #' ggMAplot(xval = res$baseMean, yval = res$log2FoldChange, pval = res$pvalue,
 #' y.ablines = c(log2(1.5),-log2(1.5)), title = "DE results", subtitle = "with ablines")
 #' 
+#' #/ show only from -2 to 2 on the y-axis, points beyond the limits will be printed as triangles:
+#' ggMAplot(xval = res$baseMean, yval = res$log2FoldChange, pval = res$pvalue,
+#' y.ablines = c(log2(1.5),-log2(1.5)), title = "DE results", subtitle = "with ablines",
+#' ylim=c(-2,2))
+#' 
 #' # as Volcano:
 #' ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
 #' title = "DE results", subtitle = "Volcano plot", preset = "volcano")
 #' 
-#' # with modified y-limits (values beyond axis limits appear as trianges) from 0 to 2:
+#' # Volcano with only abs(logFC) > 2 colored
 #' ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
-#' title = "DE results", subtitle = "trimmed", preset = "volcano", ylim = c(0, 2))
+#' title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=2,
+#' x.ablines=c(-2,2))
 #' 
 #' @export
 ggMAplot  <- function(xval, yval, pval=NULL,
                       xval.thresh=NULL, yval.thresh=0, pval.thresh=0.05,
-                      basic.col="grey50", col.up="firebrick", col.down="darkblue",
+                      col.base="grey50", col.up="firebrick", col.down="darkblue",
                       Up="Up", Down="Down", NonSig="NonSig",
                       point.size=1, point.alpha=0.75,
                       xlab="baseMean", ylab="logFC",
@@ -98,19 +102,18 @@ ggMAplot  <- function(xval, yval, pval=NULL,
                       x.ablines=NULL, x.ablines.col="black", x.ablines.lty="dashed",
                       y.ablines=NULL, y.ablines.col="black", y.ablines.lty="dashed",
                       quantiles.x=c(0, 1), quantiles.y=c(0.001, 0.999),
-                      loess.span=NULL, loess.color="black", loess.lty="solid", 
-                      preset=c("maplot", "volcano"), no.legend=FALSE)
+                      preset=c("maplot", "volcano"), no.legend=FALSE, legend.position="bottom")
 {
   
-  ####################################
-  # Checks
-  ####################################
+  #----------------------------------
+  # checks
   
   invisible(match.arg(class(pval), c("numeric", "NULL")))
   invisible(match.arg(class(xval.thresh), c("numeric", "NULL")))
   invisible(match.arg(class(yval.thresh), c("numeric", "NULL")))
   invisible(match.arg(class(pval.thresh), c("numeric", "NULL")))
   invisible(match.arg(preset, c("maplot", "volcano")))
+  invisible(match.arg(legend.position, c("left", "right", "top", "bottom")))
   preset <- match.arg(preset)
   
   #/ maplot preset is just the default but volcano is not:
@@ -123,155 +126,99 @@ ggMAplot  <- function(xval, yval, pval=NULL,
     if(all(quantiles.y==c(0.001,0.999))) quantiles.y <- c(0,1)
   }
   
-  ####################################
-  # classify
-  ####################################
+  #----------------------------------
+  # axis limits depending on the
+  # xval and yval thresholds and
+  # quantiles
   
-  #/ Given the x/y/p cutoffs classify points as "Up", "Down", "NonSig"
-  #/ If no pvals are provided set all to 1
-  if(is.null(pval)) {
-    pval <- rep(1, length(xval))
-    rm.Legend <- TRUE
-  } else rm.Legend <- FALSE
-
-  #/ Make data.frame from the three main elements x/y/p:
-  df <- cbind(data.frame(xval, yval), pval)
-  
-  #/ Based on the threshold classify points into up/down/nonsig groups:
-  classify <- lapply(c("xval.thresh", "yval.thresh"), function(x){
-    
-    nm <- gsub("\\..*", "", x)
-    
-    # threshold not specified return empty df:
-    if(is.null(get(x))) return(rep("", nrow(df)))
-    
-    # else:
-    tmp <- rep(NA, nrow(df))
-    
-    #/ specific classifier for MAs
-    if(preset=="maplot"){
-      if(x=="xval.thresh") {
-        tmp[df$pval < pval.thresh & df$yval > abs(yval.thresh) & df[,nm] >= get(x)] <- "Up"
-        tmp[df$pval < pval.thresh & df$yval < abs(yval.thresh) & df[,nm] >= get(x)] <- "Down"
-      }
-      if(x=="yval.thresh") {
-        tmp[df$pval < pval.thresh & df[,nm] >= abs(get(x))] <- "Up"
-        tmp[df$pval < pval.thresh & df[,nm] <= abs(get(x))] <- "Down"
-      }
-    }
-    
-    #/ specific classifiers for Volcanos:
-    if(preset=="volcano"){
-      if(x=="xval.thresh") {
-        tmp[df$pval < pval.thresh & df[,nm] >= get(x)] <- "Up"
-        tmp[df$pval < pval.thresh & df[,nm] <= get(x)] <- "Down"
-      }
-      if(x=="yval.thresh") {
-        if(!is.null(yval.thresh)) {
-          message("yval.thresh is ignored for Volcanos as the yaxis is simply -log10(pval).")
-          message("Instead use pval.thresh for filtering based on significance.")
-        }
-      }
-    }
-    
-    tmp[is.na(tmp)] <- "NonSig"
-    return(tmp)
-    
-  }) %>% do.call(cbind, .)
-  
-  #/ Combine the columns, if both are not the same then it is NonSig,
-  #/ else it is Up or Down:
-  classify <- classify[,!classify[1,] %in% "",drop=FALSE]
-  if(ncol(classify)>1) classify[!classify[,1]==classify[,2],1] <- "NonSig"
-  tmp<-classify[,1,drop=TRUE]
-    
-  df$Color=factor(tmp, levels=c("Up", "Down", "NonSig"))
-  
-  is.up <- length(grep("Up", tmp))
-  is.down <- length(grep("Down", tmp))
-  is.ns <- length(grep("NonSig", tmp))
-  is.total <- nrow(df)
-  
-  #/ Optionally fit a loess as y~x to visualize ratio yval > / < 0
-  if(!is.null(loess.span)) {
-    lfit <- limma::loessFit(yval, xval, method="lowess", span=loess.span)
-    df<-cbind(df, data.frame(X=xval, Y=lfit$fitted))
+  if(is.null(xlim)){
+    xlim <- as.numeric(quantile(xval, quantiles.x))
   }
   
-  ####################################
-  # Winsorize axis limits
-  ####################################
+  if(is.null(ylim)){
+    ylim <- as.numeric(quantile(yval, quantiles.y))
+  }
   
-  #/ By default the y-axis limits will be winsorized by the 0.001st and 0.999th quantile
-  #/ to avoid excessive axis limits due to outliers:
-  df$Outliers <- rep("no", nrow(df))
-  for(i in c("x", "y")){
-    if(is.null(get(paste0(i, "lim")))){
-      quanty <- get(paste0("quantiles.", i))
-      if(is.null(quanty)) quanty <- c(0,1)
-      q.top    <- as.numeric(quantile(df[,paste0(i,"val")], quanty[2]))
-      q.bottom <- as.numeric(quantile(df[,paste0(i,"val")], quanty[1]))
-    } else {
-      q.top <- get(paste0(i, "lim"))[2]
-      q.bottom <- get(paste0(i, "lim"))[1]
+  #----------------------------------
+  # mutate the data into final form
+  df <-
+    data.frame(xval, yval) %>%
+    
+    #/ add p-values
+    mutate(pval=case_when(is.null(pval) ~ rep(1, length(xval)), TRUE ~ pval)) %>%
+    
+    #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
+    mutate(outlier=case_when(xval > xlim[2] ~ "yes_x_top",
+                             xval < xlim[1] ~ "yes_x_bottom",
+                             yval > ylim[2] ~ "yes_y_top",
+                             yval < ylim[1] ~ "yes_y_bottom",
+                             TRUE           ~ "no")) %>%
+    
+    mutate(xval=case_when(outlier == "yes_x_top"    ~ xlim[2],
+                          outlier == "yes_x_bottom" ~ xlim[1],
+                          TRUE                      ~ xval)) %>%
+    
+    mutate(yval=case_when(outlier == "yes_y_top"    ~ ylim[2],
+                          outlier == "yes_y_bottom" ~ ylim[1],
+                          TRUE                      ~ yval))
+  
+  #/ classify significant points depending on preset:
+  if(preset=="maplot"){
+    
+    if(is.null(xval.thresh)){
+      xval.thresh <- 0
     }
-    w.top    <- which(df[,paste0(i, "val")] > q.top)
-    w.bottom <- which(df[,paste0(i, "val")] < q.bottom)
-    df$Outliers[w.top] <- "yes"
-    df$Outliers[w.bottom] <- "yes"
-    # with top outliers as "top" and bottom outliers as "bottom" change their y-values:
-    df[w.top,paste0(i, "val")] <- q.top
-    df[w.bottom,paste0(i, "val")] <- q.bottom
-  }; suppressWarnings(rm(q.top,w.top,q.bottom,w.bottom))
-  df$Outliers <- factor(as.character(df$Outliers), levels=c("yes", "no"))
+    if(is.null(yval.thresh)){
+      yval.thresh <- 0
+    }
+    
+    df <- df %>%
+      mutate(signif=factor(case_when(
+      pval < pval.thresh & xval > xval.thresh & yval > yval.thresh ~ get(Up),
+      pval < pval.thresh & xval > xval.thresh & yval < yval.thresh ~ get(Down),
+      TRUE ~ as.character(get(NonSig))),
+      levels=c(Up, Down, NonSig)))
+    
+  } else {
+    
+    if(is.null(xval.thresh)){
+      xval.thresh <- 0
+    }
+    
+    df <- df %>%
+      mutate(signif=factor(case_when(
+        pval < pval.thresh & xval > +xval.thresh ~ get(Up),
+        pval < pval.thresh & xval < -xval.thresh ~ get(Down),
+        TRUE ~ as.character(get(NonSig))),
+        levels=c(Up, Down, NonSig)))
+    
+  }
+    
+  #/ make sure non-outliers are dots and all others are trianges
+  df$outlier <- factor(ifelse(df$outlier=="no", "no", "yes"),
+                       levels = c("no", "yes"))
+  shapes <- c(20, 17)
   
-  # This df2 ensures that always all factor levels for Color and Outliers will be present 
-  # when creating the toplevel ggplot. The actual data for geom_point will later be read from df,
-  # not from df2 but even if df contains no "is.up" and no "is.down" then still df2 ensures 
-  # that the legend contains all three levels for Up, Down and NonSig,
-  # Idea from adapted from https://stackoverflow.com/questions/22276761/
-  l <- c("Up", "Down", "NonSig")
-  df2 <- data.frame(xval=rep(0,3),
-                    yval=rep(0,3),
-                    pval=rep(0,3),
-                    Color=factor(l, levels=l),
-                    Outliers=factor(c("yes", "no", "no"), levels=c("no", "yes")))
   
-  ####################################
-  # Assemble basic plot
-  ####################################
+  #----------------------------------
+  # assemble plot object
+  gg <- 
+  ggplot(df, aes(x=xval, y=yval, color=signif, shape=outlier)) + 
+    geom_point() +
+    scale_color_manual(values=c(col.up, col.down, col.base), drop=FALSE) +
+    scale_shape_manual(values=shapes, drop=FALSE) +
+    guides(shape=FALSE) +
+    ggtitle(title, subtitle) +
+    xlab(xlab) + ylab(ylab) +
+    xlim(xlim) + ylim(ylim)
   
-  # construct the ggplot with this df2 that contains only the factor levels and some dummy data
-  gg <- ggplot(data=df2, aes(x=xval, y=yval, color=Color, shape=Outliers)) + 
-          geom_blank() + xlab(xlab) + ylab(ylab) +
-          geom_point(alpha=point.alpha, size=point.size, data=df) +
-          scale_color_manual(values=c("Up"=col.up,
-                                      "Down"=col.down,
-                                      "NonSig"=basic.col),
-                             labels=c(paste(Up, is.up),
-                                      paste(Down, is.down),
-                                      paste(NonSig, is.ns))) +
-          guides(shape=FALSE) +
-          theme(legend.position="bottom", legend.justification="left", 
-                legend.margin=margin(0, 0, 0, 0), legend.spacing.x=unit(5, "pt"),
-                legend.title=element_blank()) +
-          ggtitle(label=title, subtitle=subtitle)
-  
-  ####################################
-  # loess
-  ####################################
-  if(!is.null(loess.span)) gg <- gg + geom_line(data=df, aes(x=X, y=Y), color=loess.color, linetype=loess.lty)
-  
-  ####################################
-  # ablines
-  ####################################
-  
-  #/ optional ablines:
+  #----------------------------------
+  # optional ablines
   for(i in c("x","y")){
     
     abl <- get(paste0(i,".ablines"))
     if(is.null(abl)) next
-      
+    
     for(a in abl){
       
       if(i=="x") {
@@ -287,16 +234,10 @@ ggMAplot  <- function(xval, yval, pval=NULL,
     }
   }
   
-  ####################################
-  # manual limits and legend
-  ####################################
-  
-  #/ optional axis limits
-  if(is.null(xlim)) xlim <- c(round(min(df$xval)-.5,1), round(max(df$xval)+.5,1))
-  if(is.null(ylim)) ylim <- c(round(min(df$yval)-.5,1), round(max(df$yval)+.5,1))
-  gg <- gg + xlim(xlim) + ylim(ylim)
-    
   #/ optinal remove legend
+  gg <- gg + theme(legend.position=legend.position,
+                   legend.title=element_blank())
+  
   if(no.legend) gg <- gg + theme(legend.position="none")
   
   return(gg)
