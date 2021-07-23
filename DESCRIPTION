@@ -7,7 +7,7 @@ Maintainer: Alexander Toenges <a.toenges@uni-muenster.de>
 Description: Functions for common data visualization tasks related to bioinformatics
 Depends: 
   R (>= 4.0),
-  magrittr,
+  dplyr,
   genomation,
   GenomicRanges,
   ggplot2,
