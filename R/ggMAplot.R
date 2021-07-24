@@ -39,6 +39,7 @@
 #' see examples
 #' @param no.legend logical, whether to remove the legend
 #' @param legend.position legend positon, one of left/right/top/bottom 
+#' @param legend.addnumbers logical, whether to add the number of Up/Down/NonSig genes to the legend
 #' 
 #' @author Alexander Toenges
 #' 
@@ -102,7 +103,8 @@ ggMAplot  <- function(xval, yval, pval=NULL,
                       x.ablines=NULL, x.ablines.col="black", x.ablines.lty="dashed",
                       y.ablines=NULL, y.ablines.col="black", y.ablines.lty="dashed",
                       quantiles.x=c(0, 1), quantiles.y=c(0.001, 0.999),
-                      preset=c("maplot", "volcano"), no.legend=FALSE, legend.position="bottom")
+                      preset=c("maplot", "volcano"), no.legend=FALSE, 
+                      legend.position="bottom", legend.addnumbers=TRUE)
 {
   
   #----------------------------------
@@ -148,19 +150,26 @@ ggMAplot  <- function(xval, yval, pval=NULL,
     mutate(pval=case_when(is.null(pval) ~ rep(1, length(xval)), TRUE ~ pval)) %>%
     
     #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
-    mutate(outlier=case_when(xval > xlim[2] ~ "yes_x_top",
-                             xval < xlim[1] ~ "yes_x_bottom",
-                             yval > ylim[2] ~ "yes_y_top",
-                             yval < ylim[1] ~ "yes_y_bottom",
-                             TRUE           ~ "no")) %>%
+    mutate(out1=case_when(xval >= xlim[2] ~ "yes_x_top",
+                          xval <= xlim[1] ~ "yes_x_bottom",
+                          TRUE ~ "no"),
+           out2=case_when(yval >= ylim[2] ~ "yes_y_top",
+                          yval <= ylim[1] ~ "yes_y_bottom",
+                          TRUE ~ "no")) %>%
     
-    mutate(xval=case_when(outlier == "yes_x_top"    ~ xlim[2],
-                          outlier == "yes_x_bottom" ~ xlim[1],
+    mutate(xval=case_when(out1 == "yes_x_top"    ~ xlim[2],
+                          out1 == "yes_x_bottom" ~ xlim[1],
                           TRUE                      ~ xval)) %>%
     
-    mutate(yval=case_when(outlier == "yes_y_top"    ~ ylim[2],
-                          outlier == "yes_y_bottom" ~ ylim[1],
-                          TRUE                      ~ yval))
+    mutate(yval=case_when(out2 == "yes_y_top"    ~ ylim[2],
+                          out2 == "yes_y_bottom" ~ ylim[1],
+                          TRUE                      ~ yval)) %>%
+    
+    mutate(outlier=factor(case_when(out1=="no" & out2=="no" ~ "no",
+                             TRUE ~ "yes"),
+                          levels = c("no", "yes"))) %>%
+    
+    select(-c(out1, out2))
   
   #/ classify significant points depending on preset:
   if(preset=="maplot"){
@@ -194,26 +203,34 @@ ggMAplot  <- function(xval, yval, pval=NULL,
     
   }
     
-  #/ make sure non-outliers are dots and all others are trianges
-  df$outlier <- factor(ifelse(df$outlier=="no", "no", "yes"),
-                       levels = c("no", "yes"))
-  shapes <- c(20, 17)
-  
-  
   #----------------------------------
   # assemble plot object
+  #/ optionally add number of DEGs to legend:
+  if(legend.addnumbers){
+    
+    legend.labs <- 
+      c(paste(Up, sum(df$signif==Up)),
+        paste(Down, sum(df$signif==Down)),
+        paste(NonSig, sum(df$signif==NonSig)))
+
+  } else legend.labs <- c(Up, Down, NonSig)
+  
   gg <- 
   ggplot(df, aes(x=xval, y=yval, color=signif, shape=outlier)) + 
     geom_point() +
-    scale_color_manual(values=c(col.up, col.down, col.base), drop=FALSE) +
-    scale_shape_manual(values=shapes, drop=FALSE) +
+    scale_color_manual(values=c(col.up, col.down, col.base), 
+                       labels=legend.labs,
+                       drop=FALSE) +
+    scale_shape_manual(values=c(20, 17), drop=FALSE) +
     guides(shape=FALSE) +
     ggtitle(title, subtitle) +
     xlab(xlab) + ylab(ylab) +
-    xlim(xlim) + ylim(ylim)
+    xlim(xlim) + ylim(ylim) +
+    theme(legend.position=legend.position,
+          legend.title=element_blank())
   
   #----------------------------------
-  # optional ablines
+  # optional ablines for x/y:
   for(i in c("x","y")){
     
     abl <- get(paste0(i,".ablines"))
@@ -233,11 +250,8 @@ ggMAplot  <- function(xval, yval, pval=NULL,
       }
     }
   }
-  
-  #/ optinal remove legend
-  gg <- gg + theme(legend.position=legend.position,
-                   legend.title=element_blank())
-  
+
+  #/ if no legend:
   if(no.legend) gg <- gg + theme(legend.position="none")
   
   return(gg)
