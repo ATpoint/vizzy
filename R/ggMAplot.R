@@ -73,6 +73,7 @@
 #' It can be done via e.g. \code{ggrepel::geom_text_repel()} without much effort though, see last example.
 #' 
 #' @examples 
+#' set.seed(1)
 #' dds <- DESeq2::DESeq(DESeq2::makeExampleDESeqDataSet(5000,10))
 #' res <- DESeq2::results(dds) %>% data.frame %>% na.omit
 #' res$baseMean<-log2(res$baseMean+1)
@@ -109,7 +110,14 @@
 #' ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
 #' labels=ifelse(res$pvalue < 0.001 & abs(res$log2FoldChange) > log2(2), rownames(res), ""),
 #' title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=log2(2)) +
-#' geom_text_repel(aes(label=labels), max.overlaps=20, min.segment.length = 0)
+#' geom_text_repel(aes(label=labels), show.legend=FALSE, max.overlaps=20, min.segment.length=0)
+#' 
+#' # or only gene number 500:
+#' library(ggrepel)
+#' ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
+#' labels=ifelse(rownames(res) == "gene500", rownames(res), ""),
+#' title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=log2(2)) +
+#' geom_text_repel(aes(label=labels), show.legend=FALSE, max.overlaps=Inf, min.segment.length=0)
 #' 
 #' 
 #' @export
