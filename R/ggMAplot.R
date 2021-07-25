@@ -92,7 +92,7 @@
 #' x.ablines=c(-2,2))
 #' 
 #' @export
-ggMAplot  <- function(xval, yval, pval=NULL,
+ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                       xval.thresh=NULL, yval.thresh=0, pval.thresh=0.05,
                       col.base="grey50", col.up="firebrick", col.down="darkblue",
                       Up="Up", Down="Down", NonSig="NonSig",
@@ -117,6 +117,10 @@ ggMAplot  <- function(xval, yval, pval=NULL,
   invisible(match.arg(preset, c("maplot", "volcano")))
   invisible(match.arg(legend.position, c("left", "right", "top", "bottom")))
   preset <- match.arg(preset)
+  
+  if(!is.null(labels)) if(length(labels)!=length(xval)){
+    stop("[Error] Length of label must be the same as of xval/yval/pval")
+  }
   
   #/ maplot preset is just the default but volcano is not:
   if(preset=="volcano"){
@@ -143,11 +147,13 @@ ggMAplot  <- function(xval, yval, pval=NULL,
   
   #----------------------------------
   # mutate the data into final form
-  df <-
-    data.frame(xval, yval) %>%
+  df <- data.frame(xval, yval) %>%
     
     #/ add p-values
     mutate(pval=case_when(is.null(pval) ~ rep(1, length(xval)), TRUE ~ pval)) %>%
+    
+    #/ add labels if exist:
+    mutate(labels=case_when(!is.null(labels)~labels)) %>%
     
     #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
     mutate(out1=case_when(xval >= xlim[2] ~ "yes_x_top",
