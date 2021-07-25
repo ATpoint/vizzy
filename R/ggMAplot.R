@@ -8,6 +8,8 @@
 #' in Volcanos
 #' @param pval a vector with pvalues-like values. Points below the \code{pval.thresh} will be 
 #' highlighted with color
+#' @param labels a vector of equal length containing per-point labels (e.g. the gene names) which then can
+#' be used downstream to label the points, see examples and details
 #' @param xval.thresh absolute threshold value for x-axis values to be color-highlighted, see details
 #' @param yval.thresh absolute threshold value for y-axis values to be color-highlighted, see details
 #' @param pval.thresh threshold for pvalues, see details
@@ -44,7 +46,7 @@
 #' @author Alexander Toenges
 #' 
 #' @details 
-#' => towards xval.thresh/yval.threshold/pval.threshold
+#' => towards xval.thresh/yval.threshold/pval.threshold \cr 
 #' We assume a typical differential expression results table, so with log fold-changes, 
 #' average expression values (baseMean) and some kind of p-values.
 #' We can trigger color-highlighting of significant genes if a p-value is provided to the function. 
@@ -55,13 +57,20 @@
 #' In \code{preset="volcano"} the yval.thresh is ignored as the yaxis is simply -log10(pval),
 #' therefore one should use \code{pval.thresh} for filtering.
 #' 
-#' => towards quantiles.x/y
+#' => towards quantiles.x/y \cr 
 #' By default in MA-plot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
 #' limits due to outliers. The 0.001th and 0.999th quantile of the \code{yvals} is used to set the limits.
 #' Points beyond these limits will be trimmed back to these exact limits and displayed as trianges rather
 #' than dots. The user can set custom quantiles or simply use an explicit \code{xlim} or \code{ylim}
 #' value to manually set axis limits. The automatic axis limit setting can be turned off by setting
 #' \code{quantiles.x} or \code{quantiles.y} to NULL or \code{c(0,1)}.
+#' 
+#' => towards labels \cr 
+#' The user can provide a vector of gene names via \code{labels} which is then internally added to the ggplot
+#' object. That allows to manually label data points e.g. with \code{ggrepel}. We do not have an 
+#' in-built option for labeling points in order to avoid overly many options, and (based on our experience)
+#' adding labels to plots with many data points anyway requires custom tweaking to produce a "good-looking" plot.
+#' It can be done via e.g. \code{ggrepel::geom_text_repel()} without much effort though, see last example.
 #' 
 #' @examples 
 #' dds <- DESeq2::DESeq(DESeq2::makeExampleDESeqDataSet(5000,10))
@@ -91,6 +100,18 @@
 #' title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=2,
 #' x.ablines=c(-2,2))
 #' 
+#' # Label significant regions, threshold pvalue<0.001 & abs(log2FoldChange) > log2(2).
+#' # Note that for the \code{labels} option we make a custom vector, same order as for the
+#' # xval/yval/pval vectors, setting those genes we do **not** want to plot as \code{""}.
+#' # It is now on the user to tweak the number of genes to label and to play with \code{max.overlaps}
+#' # in \code{geom_text_repel} until the plot looks satisfying.
+#' library(ggrepel)
+#' ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
+#' labels=ifelse(res$pvalue < 0.001 & abs(res$log2FoldChange) > log2(2), rownames(res), ""),
+#' title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=log2(2)) +
+#' geom_text_repel(aes(label=labels), max.overlaps=20, min.segment.length = 0)
+#' 
+#' 
 #' @export
 ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                       xval.thresh=NULL, yval.thresh=0, pval.thresh=0.05,
@@ -118,9 +139,11 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   invisible(match.arg(legend.position, c("left", "right", "top", "bottom")))
   preset <- match.arg(preset)
   
-  if(!is.null(labels)) if(length(labels)!=length(xval)){
-    stop("[Error] Length of label must be the same as of xval/yval/pval")
-  }
+  if(!is.null(labels)) {
+    if(length(labels)!=length(xval)){
+      stop("[Error] Length of label must be the same as of xval/yval/pval")
+    }
+  } else labels <- rep(NA, length(xval))
   
   #/ maplot preset is just the default but volcano is not:
   if(preset=="volcano"){
@@ -147,13 +170,10 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   
   #----------------------------------
   # mutate the data into final form
-  df <- data.frame(xval, yval) %>%
+  df <- data.frame(xval, yval, labels) %>%
     
     #/ add p-values
     mutate(pval=case_when(is.null(pval) ~ rep(1, length(xval)), TRUE ~ pval)) %>%
-    
-    #/ add labels if exist:
-    mutate(labels=case_when(!is.null(labels)~labels)) %>%
     
     #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
     mutate(out1=case_when(xval >= xlim[2] ~ "yes_x_top",
@@ -176,6 +196,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                           levels = c("no", "yes"))) %>%
     
     select(-c(out1, out2))
+  
   
   #/ classify significant points depending on preset:
   if(preset=="maplot"){

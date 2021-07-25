@@ -1,3 +1,7 @@
+v1.2.0
+-added a labels argument that can accept a per-point vector to manually
+add labels e.g. via ggrepel::geom_text_repel()
+
 v1.1.0
 -ggMAplot code simplification, now everything in dplyr/pipe style
 

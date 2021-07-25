@@ -8,10 +8,11 @@ ggMAplot(
   xval,
   yval,
   pval = NULL,
+  labels = NULL,
   xval.thresh = NULL,
   yval.thresh = 0,
   pval.thresh = 0.05,
-  basic.col = "grey50",
+  col.base = "grey50",
   col.up = "firebrick",
   col.down = "darkblue",
   Up = "Up",
@@ -33,34 +34,36 @@ ggMAplot(
   y.ablines.lty = "dashed",
   quantiles.x = c(0, 1),
   quantiles.y = c(0.001, 0.999),
-  loess.span = NULL,
-  loess.color = "black",
-  loess.lty = "solid",
   preset = c("maplot", "volcano"),
-  no.legend = FALSE
+  no.legend = FALSE,
+  legend.position = "bottom",
+  legend.addnumbers = TRUE
 )
 }
 \arguments{
 \item{xval}{a vector with values for the x-axis, usually average expression in MAs and 
-fold change in Volcanos}
+log fold-change in Volcanos}
 
-\item{yval}{a vector with values for the y-axis, usually fold change in MAs and -log10(pvalue) 
+\item{yval}{a vector with values for the y-axis, usually log fold-change in MAs and -log10(padj) 
 in Volcanos}
 
-\item{pval}{a vector with pvalue-like values. Points below the \code{pval.thresh} will be 
-highlighted}
+\item{pval}{a vector with pvalues-like values. Points below the \code{pval.thresh} will be 
+highlighted with color}
 
-\item{xval.thresh}{threshold for x-axis values, see details}
+\item{labels}{a vector of equal length containing per-point labels (e.g. the gene names) which then can
+be used downstream to label the points, see examples and details}
 
-\item{yval.thresh}{threshold for y-axis values, see details}
+\item{xval.thresh}{absolute threshold value for x-axis values to be color-highlighted, see details}
+
+\item{yval.thresh}{absolute threshold value for y-axis values to be color-highlighted, see details}
 
 \item{pval.thresh}{threshold for pvalues, see details}
 
-\item{basic.col}{the color for the data points}
+\item{col.base}{the base color for the data points, will also be used to color non-significant points}
 
-\item{col.up}{use this color for points classified as Up, see details}
+\item{col.up}{use this color for points classified as "Up", see details}
 
-\item{col.down}{use this color for points classified as Down, see details}
+\item{col.down}{use this color for points classified as "Down", see details}
 
 \item{Up}{legend label for points being "Up"}
 
@@ -102,38 +105,44 @@ see details}
 \item{quantiles.y}{use these quantiles of the yaxis data range to determine automatic axis limits, 
 see details}
 
-\item{loess.span}{if not NULL then use this value (e.g. 0.2) as span to fit a loess regression for
-yval~xval and add to the plot}
-
-\item{loess.color}{color of loess.span regression line}
-
 \item{preset}{the type of plot, "maplot" by default, or "volcano" to make a volcano plot, 
 see examples}
 
 \item{no.legend}{logical, whether to remove the legend}
+
+\item{legend.position}{legend positon, one of left/right/top/bottom}
+
+\item{legend.addnumbers}{logical, whether to add the number of Up/Down/NonSig genes to the legend}
 }
 \description{
 A ggplot wrapper for MA-plots and Volcanos
 }
 \details{
-=> towards xval.thresh/yval.threshold/pval.threshold
-We assume a typical differential expression results table, so with a fold change, 
-an average expression value and some kind of p-value.
-We can trigger color-highlighting of significant genes iF a pvalue is provided to the function. 
-For MAplots points below this pval.thresh will then be classified as "Up" if yval > yval.thresh 
+=> towards xval.thresh/yval.threshold/pval.threshold \cr 
+We assume a typical differential expression results table, so with log fold-changes, 
+average expression values (baseMean) and some kind of p-values.
+We can trigger color-highlighting of significant genes if a p-value is provided to the function. 
+For MA-plots points below this pval.thresh will then be classified as "Up" if yval > yval.thresh 
 which is usually the fold change in MA-plots, or "Down" if < yval.thresh, or "NonSig" 
-if > pval.thresh. xval.thresh is turned off by default for MAplots but if a threshold is provided
+if > pval.thresh. xval.thresh is turned off by default for MA-plots but if a threshold is provided
 then only points with xval > xval.thresh will be considered for the classification.
 In \code{preset="volcano"} the yval.thresh is ignored as the yaxis is simply -log10(pval),
 therefore one should use \code{pval.thresh} for filtering.
 
-=> towards quantiles.x/y
-By default in MAplot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
-limits due to outliers. The 0.001th and 0.999th quantile of the yvalues is used to set the limits.
-Points beyond these limits will be trimmed back to these limits and displayed as trianged rather
+=> towards quantiles.x/y \cr 
+By default in MA-plot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
+limits due to outliers. The 0.001th and 0.999th quantile of the \code{yvals} is used to set the limits.
+Points beyond these limits will be trimmed back to these exact limits and displayed as trianges rather
 than dots. The user can set custom quantiles or simply use an explicit \code{xlim} or \code{ylim}
 value to manually set axis limits. The automatic axis limit setting can be turned off by setting
 \code{quantiles.x} or \code{quantiles.y} to NULL or \code{c(0,1)}.
+
+=> towards labels \cr 
+The user can provide a vector of gene names via \code{labels} which is then internally added to the ggplot
+object. That allows to manually label data points e.g. with \code{ggrepel}. We do not have an 
+in-built option for labeling points in order to avoid overly many options, and (based on our experience)
+adding labels to plots with many data points anyway requires custom tweaking to produce a "good-looking" plot.
+It can be done via e.g. \code{ggrepel::geom_text_repel()} without much effort though, see last example.
 }
 \examples{
 dds <- DESeq2::DESeq(DESeq2::makeExampleDESeqDataSet(5000,10))
@@ -149,13 +158,31 @@ title = "DE results", subtitle = "most basic type of MA-plot")
 ggMAplot(xval = res$baseMean, yval = res$log2FoldChange, pval = res$pvalue,
 y.ablines = c(log2(1.5),-log2(1.5)), title = "DE results", subtitle = "with ablines")
 
+#/ show only from -2 to 2 on the y-axis, points beyond the limits will be printed as triangles:
+ggMAplot(xval = res$baseMean, yval = res$log2FoldChange, pval = res$pvalue,
+y.ablines = c(log2(1.5),-log2(1.5)), title = "DE results", subtitle = "with ablines",
+ylim=c(-2,2))
+
 # as Volcano:
 ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
 title = "DE results", subtitle = "Volcano plot", preset = "volcano")
 
-# with modified y-limits (values beyond axis limits appear as trianges) from 0 to 2:
+# Volcano with only abs(logFC) > 2 colored
 ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
-title = "DE results", subtitle = "trimmed", preset = "volcano", ylim = c(0, 2))
+title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=2,
+x.ablines=c(-2,2))
+
+# Label significant regions, threshold pvalue<0.001 & abs(log2FoldChange) > log2(2).
+# Note that for the \code{labels} option we make a custom vector, same order as for the
+# xval/yval/pval vectors, setting those genes we do **not** want to plot as \code{""}.
+# It is now on the user to tweak the number of genes to label and to play with \code{max.overlaps}
+# in \code{geom_text_repel} until the plot looks satisfying.
+library(ggrepel)
+ggMAplot(xval = res$log2FoldChange, yval = -log10(res$pvalue), pval = res$pvalue,
+labels=ifelse(res$pvalue < 0.001 & abs(res$log2FoldChange) > log2(2), rownames(res), ""),
+title = "DE results", subtitle = "Volcano plot", preset = "volcano", xval.thresh=log2(2)) +
+geom_text_repel(aes(label=labels), max.overlaps=20, min.segment.length = 0)
+
 
 }
 \author{
