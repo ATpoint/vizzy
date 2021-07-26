@@ -36,10 +36,10 @@ Here some example plots:
 
 **MA-plots:**  
 <br>
-![MAplots](./plots/MAplots.pdf)
+![MAplots](./plots/MAplots.png)
 <br>
 <br>
-![Volcanos](./plots/Volcanos.pdf)
+![Volcanos](./plots/Volcanos.png)
 
 ### plot_profiles
 This is a function to produce profiles plots starting from scores of bigwig files and genomic intervals from GRanges objects. 
