@@ -40,6 +40,7 @@ Here some example plots:
 <br>
 <br>
 ![Volcanos](./plots/Volcanos.png)
+<br>
 
 ### plot_profiles
 This is a function to produce profiles plots starting from scores of bigwig files and genomic intervals from GRanges objects. 
