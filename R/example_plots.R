@@ -1,6 +1,6 @@
-library(vizzy)
-library(patchwork)
-library(ggrepel)
+#library(vizzy)
+#library(patchwork)
+#library(ggrepel)
 
 set.seed(1)
 dds <- DESeq2::DESeq(DESeq2::makeExampleDESeqDataSet(5000,10))
