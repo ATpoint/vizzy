@@ -39,7 +39,7 @@ Here some example plots:
 ![MAplots](./plots/MAplots.png)
 <br>
 <br>
-![Volcanos](./plots/Volcanos.png)
+![Volcanos](./plots/Volcanos1.png)
 <br>
 
 ### plot_profiles
