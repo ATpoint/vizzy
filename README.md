@@ -32,7 +32,13 @@ This is a function to produce MA-plots and Volcanos, optionally with highlightin
 
 => See `?ggMAplot` for a more detailed explanation. 
 
-![MAs_Volcanos](https://i.ibb.co/fkX2tzv/ggMA.png)
+Here some example plots:
+
+**MA-plots:**  
+<br>
+[MAplots](./plots/MAplots.pdf)
+<br>
+[Volcanos](./plots/Volcanos.pdf)
 
 ### plot_profiles
 This is a function to produce profiles plots starting from scores of bigwig files and genomic intervals from GRanges objects. 
