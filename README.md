@@ -36,7 +36,7 @@ Here some example plots:
 
 **MA-plots:**  
 
-<object data="/plots/maplots_examples.pdf" type="application/pdf" width="100%">
+<object data="./plots/maplots_examples.pdf" type="application/pdf" width="100%">
 </object>
 
 **Volcanos:**
