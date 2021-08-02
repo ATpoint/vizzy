@@ -42,14 +42,14 @@ Here some example plots:
 
 **MA-plots:**  
 
-![./plots/maplots_examples.png](MAs)
+![MAplots](./plots/maplots_examples.png)
 
 <br>
 <br>
 
 **Volcanos:**
 
-![./plots/volcano_examples.png](MAs)
+![Volcanos](./plots/volcano_examples.png)
 
 <br>
 <br>
