@@ -36,10 +36,15 @@ Here some example plots:
 
 **MA-plots:**  
 <br>
-![MAplots](./plots/MAplots.png)
+
+<embed src="./plots/maplots_examples.pdf" type="application/pdf">
+
 <br>
+
 <br>
-![Volcanos](./plots/Volcanos1.png)
+
+<embed src="./plots/volcano_examples.pdf.pdf" type="application/pdf">
+
 <br>
 
 ### plot_profiles
