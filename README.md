@@ -32,17 +32,27 @@ This is a function to produce MA-plots and Volcanos, optionally with highlightin
 
 => See `?ggMAplot` for a more detailed explanation. 
 
+<br>
+<br>
+
 Here some example plots:
+
+<br>
+<br>
 
 **MA-plots:**  
 
-<object data="./plots/maplots_examples.pdf" type="application/pdf" width="100%">
-</object>
+![./plots/maplots_examples.png](MAs)
+
+<br>
+<br>
 
 **Volcanos:**
 
-<embed src="/plots/volcano_examples.pdf" type="application/pdf">
+![./plots/volcano_examples.png](MAs)
 
+<br>
+<br>
 
 ### plot_profiles
 This is a function to produce profiles plots starting from scores of bigwig files and genomic intervals from GRanges objects. 
