@@ -37,13 +37,13 @@ Here some example plots:
 **MA-plots:**  
 <br>
 
-<embed src="./plots/maplots_examples.pdf" type="application/pdf">
+<embed src="/plots/maplots_examples.pdf" type="application/pdf">
 
 <br>
 
 <br>
 
-<embed src="./plots/volcano_examples.pdf.pdf" type="application/pdf">
+<embed src="/plots/volcano_examples.pdf" type="application/pdf">
 
 <br>
 
