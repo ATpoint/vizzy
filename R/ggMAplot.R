@@ -220,8 +220,8 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
     
     df <- df %>%
       mutate(signif=factor(case_when(
-      pval < pval.thresh & xval > xval.thresh & yval > yval.thresh ~ get(Up),
-      pval < pval.thresh & xval > xval.thresh & yval < yval.thresh ~ get(Down),
+      pval < pval.thresh & xval > xval.thresh & yval > abs(yval.thresh) ~ get(Up),
+      pval < pval.thresh & xval > xval.thresh & yval < -abs(yval.thresh) ~ get(Down),
       TRUE ~ as.character(get(NonSig))),
       levels=c(Up, Down, NonSig)))
     
@@ -236,8 +236,8 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
     
     df <- df %>%
       mutate(signif=factor(case_when(
-        pval < pval.thresh & xval > +xval.thresh ~ get(Up),
-        pval < pval.thresh & xval < -xval.thresh ~ get(Down),
+        pval < pval.thresh & xval > abs(xval.thresh) ~ get(Up),
+        pval < pval.thresh & xval < -abs(xval.thresh) ~ get(Down),
         TRUE ~ as.character(get(NonSig))),
         levels=c(Up, Down, NonSig)))
     
