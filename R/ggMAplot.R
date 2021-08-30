@@ -257,7 +257,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   
   gg <- 
   ggplot(df, aes(x=xval, y=yval, color=signif, shape=outlier)) + 
-    geom_point() +
+    geom_point(size=point.size, alpha=point.alpha) +
     scale_color_manual(values=c(col.up, col.down, col.base), 
                        labels=legend.labs,
                        drop=FALSE) +
