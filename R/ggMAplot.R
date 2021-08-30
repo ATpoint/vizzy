@@ -202,7 +202,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                              TRUE ~ "yes"),
                           levels = c("no", "yes"))) %>%
     
-    select(-c(out1, out2))
+    dplyr::select(-c(out1, out2))
   
   
   #/ classify significant points depending on preset:
