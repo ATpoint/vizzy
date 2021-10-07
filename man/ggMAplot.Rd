@@ -18,7 +18,7 @@ ggMAplot(
   Up = "Up",
   Down = "Down",
   NonSig = "NonSig",
-  point.size = 1,
+  point.size = 2,
   point.alpha = 0.75,
   xlab = NULL,
   ylab = NULL,
@@ -148,6 +148,9 @@ object. That allows to manually label data points e.g. with \code{ggrepel}. We d
 in-built option for labeling points in order to avoid overly many options, and (based on our experience)
 adding labels to plots with many data points anyway requires custom tweaking to produce a "good-looking" plot.
 It can be done via e.g. \code{ggrepel::geom_text_repel()} without much effort though, see last example.
+Basically, one uses an ifelse statement that returns the gene name if it is to be plotted or an empty string if not.
+The label is then added to the data.frame that is passed to ggplot, so one simply has to add "+ geom_label_repel" in order
+to plot the label. One can then add ggrepel options at will, e.g. nudge_x/y to increase connector length.
 }
 \examples{
 set.seed(1)
@@ -188,14 +191,14 @@ library(ggrepel)
 ggMAplot(xval = res$log2FoldChange, yval = -log10(res$padj), pval = res$padj,
 labels=ifelse(res$padj < 0.001 & abs(res$log2FoldChange) > log2(2), rownames(res), ""),
 title = "Volcano", subtitle = "with padj < 0.001 labelled", preset = "volcano", xval.thresh=log2(2)) +
-geom_text_repel(aes(label=labels), show.legend=FALSE, max.overlaps=20, min.segment.length=0)
+geom_label_repel(show.legend=FALSE, max.overlaps=20, min.segment.length=0, nudge_x=1, nudge_y=-1)
 
 # or only gene number 1, see also https://ggrepel.slowkow.com/articles/examples.html for many options to customize ggrepel:
 library(ggrepel)
 ggMAplot(xval = res$log2FoldChange, yval = -log10(res$padj), pval = res$padj,
 labels=ifelse(rownames(res) == "gene1", rownames(res), ""),
 title = "Volcano", subtitle = "with specific genes labelled", preset = "volcano", xval.thresh=log2(2)) +
-geom_text_repel(aes(label=labels), show.legend=FALSE, max.overlaps=Inf, nudge_y=0.5)
+geom_label_repel(aes(label=labels), show.legend=FALSE, min.segment.length=0, nudge_x=-1)
 
 
 }
