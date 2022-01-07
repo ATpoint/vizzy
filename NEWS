@@ -1,3 +1,6 @@
+v1.2.3
+-big with pval (again...)
+
 v1.2.2
 -fixed a bug when pval=NULL
 -make sure that colored points will always be printed on top of NonSig points

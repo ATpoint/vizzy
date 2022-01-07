@@ -179,10 +179,14 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   
   #----------------------------------
   # mutate the data into final long form
-  df <- data.frame(xval, yval, labels) %>% 
+  df <- data.frame(xval, yval, labels)
+  if(is.null(pval)){
+    df$pval <- 1
+  } else df$pval <- pval 
     
-    #/ add p-values
-    mutate(pval=ifelse(is.null(pval), 1, pval)) %>%
+  df <-
+    
+    df %>%
     
     #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
     mutate(out1=case_when(xval > xlim[2] ~ "yes_x_top",
