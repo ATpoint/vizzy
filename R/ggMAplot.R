@@ -131,10 +131,10 @@
 ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                       xval.thresh=NULL, yval.thresh=0, pval.thresh=0.05,
                       col.base="grey50", col.up="firebrick", col.down="darkblue",
-                      Up="Up", Down="Down", NonSig="NonSig",
                       point.size=2, point.alpha=0.75,
                       xlab=NULL, ylab=NULL,
                       xlim=NULL, ylim=NULL,
+                      Up="Up", Down="Down", NonSig="NonSig",
                       title=waiver(), subtitle=waiver(),
                       x.ablines=NULL, x.ablines.col="black", x.ablines.lty="dashed",
                       y.ablines=NULL, y.ablines.col="black", y.ablines.lty="dashed",
@@ -179,10 +179,10 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   
   #----------------------------------
   # mutate the data into final long form
-  df <- data.frame(xval, yval, labels) %>%
+  df <- data.frame(xval, yval, labels) %>% 
     
     #/ add p-values
-    mutate(pval=case_when(is.null(pval) ~ rep(1, length(xval)), TRUE ~ pval)) %>%
+    mutate(pval=ifelse(is.null(pval), 1, pval)) %>%
     
     #/ if beyond xlim/ylim trim to specified x/ylim and plot as triangle:
     mutate(out1=case_when(xval > xlim[2] ~ "yes_x_top",
@@ -205,6 +205,9 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                           levels = c("no", "yes"))) %>%
     
     dplyr::select(-c(out1, out2))
+  
+  #/ no pvals means no legend
+  if(is.null(pval)) no.legend <- TRUE
   
   
   #/ classify significant points depending on preset:
@@ -257,6 +260,9 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
 
   } else legend.labs <- c(Up, Down, NonSig)
   
+  #/ sort in a way that the colored points always are on top of the thers
+  df <- df[order(match(df$signif, c(NonSig, Up, Down))),]
+  
   gg <- 
   ggplot(df, aes(x=xval, y=yval, color=signif, shape=outlier, label=labels)) + 
     geom_point(size=point.size, alpha=point.alpha) +
@@ -264,7 +270,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                        labels=legend.labs,
                        drop=FALSE) +
     scale_shape_manual(values=c(20, 17), drop=FALSE) +
-    guides(shape=FALSE) +
+    guides(shape="none") +
     ggtitle(title, subtitle) +
     xlab(xlab) + ylab(ylab) +
     xlim(xlim) + ylim(ylim) +

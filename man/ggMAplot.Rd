@@ -15,15 +15,15 @@ ggMAplot(
   col.base = "grey50",
   col.up = "firebrick",
   col.down = "darkblue",
-  Up = "Up",
-  Down = "Down",
-  NonSig = "NonSig",
   point.size = 2,
   point.alpha = 0.75,
   xlab = NULL,
   ylab = NULL,
   xlim = NULL,
   ylim = NULL,
+  Up = "Up",
+  Down = "Down",
+  NonSig = "NonSig",
   title = waiver(),
   subtitle = waiver(),
   x.ablines = NULL,
@@ -66,12 +66,6 @@ be used downstream to label the points, see examples and details}
 
 \item{col.down}{use this color for points classified as "Down", see details}
 
-\item{Up}{legend label for points being "Up"}
-
-\item{Down}{legend label for points being "Down"}
-
-\item{NonSig}{legend label for points being "NonSig"}
-
 \item{point.size}{size of data points}
 
 \item{point.alpha}{point opacity}
@@ -83,6 +77,12 @@ be used downstream to label the points, see examples and details}
 \item{xlim}{xaxis limits, by default full data range}
 
 \item{ylim}{yaxis limits, by default the 0.001th and 0.999th quantile of the data range, see details}
+
+\item{Up}{legend label for points being "Up"}
+
+\item{Down}{legend label for points being "Down"}
+
+\item{NonSig}{legend label for points being "NonSig"}
 
 \item{title}{main title text}
 
