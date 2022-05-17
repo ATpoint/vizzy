@@ -61,7 +61,7 @@
 #' 
 #' => towards quantiles.x/y \cr 
 #' By default in MA-plot mode the yaxis (fold changes) is automatically scaled to avoid overly wide
-#' limits due to outliers. The 0.001th and 0.999th quantile of the \code{yvals} is used to set the limits.
+#' limits due to outliers. The 0.0001th and 0.9999th quantile of the \code{yvals} is used to set the limits.
 #' Points beyond these limits will be trimmed back to these exact limits and displayed as trianges rather
 #' than dots. The user can set custom quantiles or simply use an explicit \code{xlim} or \code{ylim}
 #' value to manually set axis limits. The automatic axis limit setting can be turned off by setting
@@ -139,7 +139,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
                       x.ablines=NULL, x.ablines.col="black", x.ablines.lty="dashed",
                       y.ablines=NULL, y.ablines.col="black", y.ablines.lty="dashed",
                       quantiles.x=c(0, 1),
-                      quantiles.y=c(.001, .999),
+                      quantiles.y=c(.0001, .9999),
                       preset=c("maplot", "volcano"),
                       no.legend=FALSE, legend.position="bottom", legend.addnumbers=TRUE,
                       return.data=FALSE)
@@ -218,7 +218,7 @@ ggMAplot  <- function(xval, yval, pval=NULL, labels=NULL,
   if(preset=="maplot"){
     
     if(is.null(xval.thresh)){
-      xval.thresh <- 0
+      xval.thresh <- -Inf
     }
     if(is.null(yval.thresh)){
       yval.thresh <- 0

@@ -20,9 +20,6 @@ Function to calculate confidence interval from a numeric matrix on a column-wise
 Code is adapted and basically identical to the Utilities.R script from the Bioconductor package ChIPSeeker.
 Main intend is to serve as helper function for the PlotProfiles() function.
 }
-\details{
-
-}
 \examples{
 cts <- sapply(seq(1,100), function(x) rnorm(100, 1))
 ci <- CalculateBootCI(cts = cts, Times = 500, Cores = 8, CI = 0.95)
