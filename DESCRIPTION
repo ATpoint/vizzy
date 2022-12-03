@@ -1,7 +1,7 @@
 Package: vizzy
 Type: Package
 Title: vizzy - functions for data visualization
-Version: 1.2.2
+Version: 1.2.3
 Authors: Alexander Toenges <a.toenges@uni-muenster.de>
 Maintainer: Alexander Toenges <a.toenges@uni-muenster.de>
 Description: Functions for common data visualization tasks related to bioinformatics
@@ -11,6 +11,7 @@ Depends:
   genomation,
   GenomicRanges,
   ggplot2,
+  parallel,
   reshape2,
   rtracklayer
 Suggests:
@@ -18,4 +19,4 @@ Suggests:
   ggrepel,
   patchwork
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2

@@ -117,7 +117,7 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
   #/ Checks:
   invisible(match.arg(class(names), c("character", "NULL")))
   invisible(match.arg(class(x.ticks), c("numeric", "NULL")))
-  invisible(match.arg(class(x.ticks.lab), c("numeric", "NULL")))
+  invisible(match.arg(class(x.ticks.lab), c("character", "NULL")))
   invisible(match.arg(class(x.ticks.angle), c("numeric")))
   invisible(match.arg(class(x.ticks.kb), c("logical")))
   invisible(match.arg(class(loess.span), c("numeric", "NULL")))
@@ -236,7 +236,7 @@ plot_profiles <- function(bigwigs, ranges, names=NULL,
   }
   
   p <- ggplot(df.melt, aes(x=Seq, y=colmeans, color=samples)) + 
-    geom_line(size=lwd) +
+    geom_line(linewidth=lwd) +
     scale_color_manual(values=colors)
   
   #########################
