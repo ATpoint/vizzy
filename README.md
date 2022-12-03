@@ -58,6 +58,6 @@ Here some example plots:
 This is a function to produce profiles plots starting from scores of bigwig files and genomic intervals from GRanges objects. 
 It is possible to either use one bigwig file and plot the scores over one or many sets of genomic intervals, or use many bigwig files and plot the scores over one set of genomic intervals. Optionally the function calculates confidence intervals for each profile curve using bootstrapping.
 
-![profiles1](https://i.ibb.co/0yVxyvM/profiles.png)
+![profiles1](./plots/profiles.png)
 
 
